@@ -7,7 +7,7 @@ function extractmarkedstringsinfile(file::String)::Channel{Tuple{String, String}
         isnothing(m) && continue
         normalized = normalizedtranslationname(m.match)
         put!(channel, (normalized, m.match[2:end]))
-        println("Replacing $normalized in $file")
+        println(Core.stdout, "Replacing $normalized in $file")
         replacetranslation(file, normalized, m.match)
         found = true
         break
@@ -32,7 +32,6 @@ gentranslationcaller(name::String) = "AppLocalizations.of(context)!.$name"
 function extractmarkedstrings(project::FlutterProject)::Channel{Tuple{String, String}}
   Channel{Tuple{String, String}}() do channel
     for (folder, _, files) ∈ walkdir(joinpath(project.root,"lib/"))
-      flush(Core.stdout)
       for file in files
         if endswith(file, ".dart") && !endswith(folder, "l10n")
           for tup in extractmarkedstringsinfile(joinpath(folder, file))
