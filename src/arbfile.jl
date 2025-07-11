@@ -3,16 +3,24 @@ struct ArbFile
 end
 arbfile(path::String) = ArbFile(path)
 
-function readfile(file::ArbFile)::Dict{String, Any}
-  open(file.path) do f
-    JSON.parse(read(f, String))
+function readfile(file::ArbFile)::Dict{String, String}
+  f = open(file.path)
+  local data::Dict{String, String}
+  try
+    data = JSON.parse(read(f, String), dicttype=Dict{String, String})
+  finally
+    close(f)
   end
+  return data
 end
 
-function writefile(file::ArbFile, data::Dict{AbstractString, Any})
+function writefile(file::ArbFile, data::Dict{String, String})
   serial = JSON.json(data, 2)
-  open(file.path, "w") do f
+  f = open(file.path, "w")
+  try
     write(f, serial)
+  finally
+    close(f)
   end
 end
 
@@ -21,7 +29,7 @@ function hastranslation(arb::ArbFile, key::String)
 end
 
 function addtranslation!(arb::ArbFile, key::String, value::String)
-  data::Dict{AbstractString, Any} = readfile(arb)
+  data = readfile(arb)
   data[key] = value
   writefile(arb, data)
 end
@@ -29,7 +37,7 @@ end
 function copymissingkeys(from::ArbFile, to::ArbFile)
   data1 = readfile(from)
   data2 = readfile(to)
-  missingkeys::Vector{String} = setdiff(keys(data1), keys(data2))
+  missingkeys::Set{String} = setdiff(keys(data1), keys(data2))
   for key in missingkeys
     println(Core.stdout, "Adding missing $key to $(to.path)")
     addtranslation!(to, key, "#" * data1[key])
