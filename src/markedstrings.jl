@@ -1,8 +1,8 @@
-function extractmarkedstringsinfile(file::String)::Channel{Tuple{String, String}}
-  Channel{Tuple{String, String}}() do channel
+function extractmarkedstringsinfile(file::String)::Channel{Tuple{String,String}}
+  Channel{Tuple{String,String}}() do channel
     while true
       found = false
-      for (lineidx, line) in enumerate(open(readlines,file))
+      for (lineidx, line) in enumerate(open(readlines, file))
         m = match(r"_\"[^\"]+\"", line)
         isnothing(m) && continue
         normalized = normalizedtranslationname(m.match)
@@ -29,9 +29,9 @@ end
 gentranslationcaller(name::String) = "AppLocalizations.of(context)!.$name"
 
 
-function extractmarkedstrings(project::FlutterProject)::Channel{Tuple{String, String}}
-  Channel{Tuple{String, String}}() do channel
-    for (folder, _, files) ∈ walkdir(joinpath(project.root,"lib/"))
+function extractmarkedstrings(project::FlutterProject)::Channel{Tuple{String,String}}
+  Channel{Tuple{String,String}}() do channel
+    for (folder, _, files) ∈ walkdir(joinpath(project.root, "lib/"))
       for file in files
         if endswith(file, ".dart") && !endswith(folder, "l10n")
           for tup in extractmarkedstringsinfile(joinpath(folder, file))

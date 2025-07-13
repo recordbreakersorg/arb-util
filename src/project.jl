@@ -22,38 +22,40 @@ function synchronizearbfiles(project::FlutterProject)
   end
 end
 
-function addtranslationkey(project::FlutterProject,normalized::String, text::String) 
+function addtranslationkey(project::FlutterProject, normalized::String, text::String)
   for arb in getarbfiles(project)
-    !hastranslation(arb, normalized) && addtranslation!(arb, normalized, text)
+    if "en" ∈ arb.path
+      !hastranslation(arb, normalized) && addtranslation!(arb, normalized, text)
+    end
   end
 end
 
 translationsdir(project::FlutterProject) = joinpath(project.root, "lib/l10n")
 
 function watchchanges(project::FlutterProject)
-    println(Core.stdout, "Watching for changes...")
-    mtimes = Dict{String,Float64}()
-    while true
-      shouldRefresh = false
-      for (normalized, text) in extractmarkedstrings(project)
-        addtranslationkey(project, normalized, JSON.parse(text))
-        shouldRefresh = true
-      end
-      synchronizearbfiles(project)
-      for file ∈ getarbfiles(project)
-        if file.path ∉ keys(mtimes)
-          println(Core.stdout, " - Adding file ", file.path)
-          mtimes[file.path] = mtime(file.path)
-        else
-          modified = mtime(file.path)
-          if modified > mtimes[file.path]
-            println(Core.stdout, "File modified", last(splitdir(file.path)))
-            mtimes[file.path] = modified
-            shouldRefresh = true
-          end
+  println(Core.stdout, "Watching for changes...")
+  mtimes = Dict{String,Float64}()
+  while true
+    shouldRefresh = false
+    for (normalized, text) in extractmarkedstrings(project)
+      addtranslationkey(project, normalized, JSON.parse(text))
+      shouldRefresh = true
+    end
+    synchronizearbfiles(project)
+    for file ∈ getarbfiles(project)
+      if file.path ∉ keys(mtimes)
+        println(Core.stdout, " - Adding file ", file.path)
+        mtimes[file.path] = mtime(file.path)
+      else
+        modified = mtime(file.path)
+        if modified > mtimes[file.path]
+          println(Core.stdout, "File modified", last(splitdir(file.path)))
+          mtimes[file.path] = modified
+          shouldRefresh = true
         end
       end
-      shouldRefresh && rebuildLocalizations(project)
-      sleep(5)
     end
+    shouldRefresh && rebuildLocalizations(project)
+    sleep(5)
+  end
 end
