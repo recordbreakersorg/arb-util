@@ -60,6 +60,16 @@ Then running `./manage.fish run` will detect the executable and use it.
 Trimmed compilation uses to take less than a minute on similar projects, but the JSON
 package seems not to work well with juliac.jl, still looking for a fix...
 
+### Once installed
+
+Go to your project root(make sure to commit to prevent any loss... Crashes are still
+possible and not well handled.), then run `arb-util`.
+
+Then just code, to add a translation simply prepend any string literal in a `.dart` source
+file in lib/, save and wait 8secs, arb-util's log will alert you it noticed the change and
+the arb files will be updated. If you use `neovim` like me you just need to focus another
+buffer or window before returning so as not to overwrite the changes.
+
 ## To implement
 
 - Add config file.
