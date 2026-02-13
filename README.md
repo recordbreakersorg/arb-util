@@ -1,6 +1,9 @@
 # arb-util
 
-When managing application code, with layout and so stuff, having to handle additionaly
+**UNMAINTAINED**: I am now working on a superior implementation with more features and a much simpler setup. https://github.com/ken-morel/arb-util
+
+When managing application code, with 
+layout and so stuff, having to handle additionaly
 arb translation files can be a real burden, especially when it involves several languages.
 
 this helps you to solve this via a few operations, done in a loop every 5 seconds.
